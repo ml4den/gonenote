@@ -52,8 +52,8 @@
           <input type="number" class="form-control" id="ttl" min="1" max="90" value="30">
         </div>
         <div class="form-group">
-          <label for="reads">Times read before deleted (1-5):</label>
-          <input type="number" class="form-control" id="reads" min="1" max="5" value="1">
+          <label for="views">Times read before deleted (1-5):</label>
+          <input type="number" class="form-control" id="views" min="1" max="5" value="1">
         </div>
         <br>
         <button type="submit" class="btn btn-primary" onclick="formSubmit();return false">Submit</button>
@@ -76,15 +76,15 @@
     function fetchNotePost() {
       console.log("gonna post note");
       console.log(document.getElementById('noteClearText').value);
-      console.log(document.getElementById('reads').value);
+      console.log(document.getElementById('views').value);
       console.log(document.getElementById('ttl').value);
       const url = 'https://dawn-leaf-fb26.ml4den.workers.dev/';
 
       if (url !== null) {
         console.log("gonna fetch")
         let formData = new FormData();
-        formData.append('note', 'Jason');
-        formData.append('views', '4');
+        formData.append('note', document.getElementById('noteClearText').value);
+        formData.append('views', document.getElementById('views').value);
 
         fetch(url,{
           body: formData,
