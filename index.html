@@ -35,8 +35,8 @@
       <div class="col-md-8 col-xl-6 text-center mx-auto">
         <h2 class="display-6 fw-bold">Gone Note</h2>
         <article class="text-muted">
-          Send encrypted self-destructing notes securely. Notes are encrypted in your browser and the key is never sent to the server when the note is stored in the
-          database.
+          <p>Send encrypted self-destructing notes securely.</p>
+          <p>Notes are encrypted in your browser and the key is never transmitted. Only the encrypted note is sent to our storage.</p>
           <p>See more about how this works on <a href="https://github.com/ml4den/gonenote" alt="Gone Note on GitHub">GitHub</a>.</p>
         </article>
       </div>
@@ -64,8 +64,7 @@
       <div class="col-md-8 col-xl-6 text-center mx-auto">
         <h2 class="display-6 fw-bold"><a href="/" class="text-reset text-decoration-none">Gone Note</a></h2>
         <p class="text-muted">
-          Notes are encrypted in your browser and the key is never sent to the server when the note is stored in the
-          database.
+          Here is the link to your self-destructing note. It will stop working once your note's view or time limit is reached.
         </p>
       </div>
       <form class="col-md-8 col-xl-6 text-center mx-auto">
@@ -86,8 +85,7 @@
       <div class="col-md-8 col-xl-6 text-center mx-auto">
         <h2 class="display-6 fw-bold"><a href="/" class="text-reset text-decoration-none">Gone Note</a></h2>
         <p class="text-muted">
-          Notes are encrypted in your browser and the key is never sent to the server when the note is stored in the
-          database.
+          <p id="clickBelow">Click below, if you want to access your self-destructing note.</p>
         </p>
         <div id="buttonRead">
           <button type="submit" class="btn btn-primary" onclick="buttonRead();return false">Read Note</button>
@@ -96,7 +94,8 @@
       <div id="decryptedField" style="display: none;">
         <form class="col-md-8 col-xl-6 text-center mx-auto">
           <div class="form-group">
-            <label for="noteDecrypted">Decrypted Note:</label>
+            <p>Here is your self-destructing note.</p>
+            <p>If you need to keep it, copy it before closing this window.</p>
             <textarea class="form-control" id="noteDecrypted" rows="6" readonly onclick="selectAll('noteDecrypted'); this.onclick=null;"></textarea>
           </div>
           <br />
@@ -197,6 +196,7 @@
           const noteDecrypted = decrypted.toString(CryptoJS.enc.Utf8);
           document.getElementById('noteDecrypted').value = noteDecrypted;
           document.getElementById("decryptedField").style.display = "block";
+          document.getElementById("clickBelow").style.display = "none";
           document.getElementById("statusMessage").style.display = "none";
           document.getElementById("buttonRead").style.display = "none";
         })
