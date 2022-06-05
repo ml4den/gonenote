@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Gone Note</title>
+  <meta name="description" content="Send encrypted self-destructing notes securely." />
+  <meta name="author" content="kirilov.ml" />
+  <meta name="theme-color" content="#0d6efd" />
+
+  <meta property="og:title" content="Gone Note" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="" />
+  <meta property="og:description" content="Send encrypted self-destructing notes securely." />
+  <meta property="og:image" content="" />
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml />
+    <link rel=" manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="favicon-192px.png" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    crossorigin="anonymous" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"
+    integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+
+<body>
+  <div id="viewForm" class="container">
+    <section class="py-4 py-xl-5 container">
+      <div class="col-md-8 col-xl-6 text-center mx-auto">
+        <h2 class="display-6 fw-bold">Gone Note</h2>
+        <article class="text-muted">
+          <p>Send encrypted self-destructing notes securely.</p>
+          <p>Notes are encrypted in your browser and the key is never transmitted. Only the encrypted note is sent to our storage.</p>
+          <p>See more about how this works on <a href="https://github.com/ml4den/gonenote" alt="Gone Note on GitHub">GitHub</a>.</p>
+        </article>
+      </div>
+      <form class="col-md-8 col-xl-6 text-center mx-auto">
+        <div class="form-group">
+          <label for="noteClearText">Note:</label>
+          <textarea class="form-control" id="noteClearText" rows="6"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="ttl">Days before deleted (1-90):</label>
+          <input type="number" class="form-control" id="ttl" min="1" max="90" value="30">
+        </div>
+        <div class="form-group">
+          <label for="views">Times read before deleted (1-5):</label>
+          <input type="number" class="form-control" id="views" min="1" max="5" value="1">
+        </div>
+        <br />
+        <button type="submit" class="btn btn-primary" onclick="formSubmit();return false">Submit</button>
+      </form>
+    </section>
+  </div>
+
+  <div id="viewLink" class="container" style="display: none;">
+    <section class="py-4 py-xl-5 container">
+      <div class="col-md-8 col-xl-6 text-center mx-auto">
+        <h2 class="display-6 fw-bold"><a href="/" class="text-reset text-decoration-none">Gone Note</a></h2>
+        <p class="text-muted">
+          Here is the link to your self-destructing note. It will stop working once your note's view or time limit is reached.
+        </p>
+      </div>
+      <form class="col-md-8 col-xl-6 text-center mx-auto">
+        <div class="form-group">
+          <label for="link">Link to the note:</label>
+          <input type="text" class="form-control" id="link" onclick="selectAll('link');">
+        </div>
+        <div id="buttonCopyNote">
+          <br />
+          <button type="submit" class="btn btn-primary" onclick="copyAll('link');return false">Copy Link</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div id="viewNote" class="container" style="display: none;">
+    <section class="py-4 py-xl-5 container">
+      <div class="col-md-8 col-xl-6 text-center mx-auto">
+        <h2 class="display-6 fw-bold"><a href="/" class="text-reset text-decoration-none">Gone Note</a></h2>
+        <p class="text-muted">
+          <p id="clickBelow">Click below, if you want to access your self-destructing note.</p>
+        </p>
+        <div id="buttonRead">
+          <button type="submit" class="btn btn-primary" onclick="buttonRead();return false">Read Note</button>
+        </div>
+      </div>
+      <div id="decryptedField" style="display: none;">
+        <form class="col-md-8 col-xl-6 text-center mx-auto">
+          <div class="form-group">
+            <p>Here is your self-destructing note.</p>
+            <p>If you need to keep it, copy it before closing this window.</p>
+            <textarea class="form-control" id="noteDecrypted" rows="6" readonly onclick="selectAll('noteDecrypted'); this.onclick=null;"></textarea>
+          </div>
+          <br />
+          <div id="buttonCopyNote">
+            <button type="submit" class="btn btn-primary" onclick="copyAll('noteDecrypted');return false">Copy</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <div class="container text-center pt-3" id="statusMessage" style="display: none;">
+    <div class="spinner-border" role="status"></div>
+  </div>
+
+  <script>
+    document.getElementById('statusMessage').style.display = "none";
+    
+    function selectAll(id) {
+      document.getElementById(id).focus();
+      document.getElementById(id).select();
+    };
+
+    function copyAll(id) {
+      const copyText = document.getElementById(id);
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(copyText.value);
+    };
+
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+
+    if (urlParams.has("note") && urlParams.get("note") !== "" && urlParams.has("key") && urlParams.get("key") !== "") {
+      document.getElementById('viewNote').style.display = "block";
+      document.getElementById('viewForm').style.display = "none";
+      document.getElementById('viewLink').style.display = "none";
+    }
+
+    const key = CryptoJS.enc.Hex.stringify(CryptoJS.lib.WordArray.random(16));
+
+    function buttonRead() {
+      document.getElementById('statusMessage').style.display = "block";
+      fetchNoteGet();
+    };
+
+    function formSubmit() {
+      document.getElementById('statusMessage').style.display = "block";
+      fetchNotePost();
+    };
+
+    function fetchNotePost() {
+      const url = 'https://gone-note.ml4den.workers.dev/';
+
+      if (url !== null) {
+        const noteEncrypted = CryptoJS.AES.encrypt(document.getElementById('noteClearText').value, key);
+        const formData = new FormData();
+        formData.append('note', noteEncrypted);
+        formData.append('views', document.getElementById('views').value);
+        formData.append('ttl', document.getElementById('ttl').value);
+
+        fetch(url, {
+          body: formData,
+          method: "post",
+        })
+          .then(handleErrors)
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (jsonResponse) {
+            // do something with jsonResponse
+            document.getElementById("statusMessage").style.display = "none";
+            document.getElementById("viewForm").style.display = "none";
+            document.getElementById("viewLink").style.display = "block";
+            document.getElementById('link').value = location.href + '?note=' + jsonResponse.id + '&key=' + key;
+          })
+          .catch(function (error) {
+            console.log(error);
+            document.getElementById("statusMessage").innerHTML = error;
+          });
+      }
+
+
+    };
+
+    function fetchNoteGet() {
+    const url = 'https://gone-note.ml4den.workers.dev/' + '?id=' + urlParams.get("note");
+
+    if (url !== null) {
+      fetch(url)
+        .then(handleErrors)
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (jsonResponse) {
+          // do something with jsonResponse
+          const decrypted = CryptoJS.AES.decrypt(jsonResponse.note, urlParams.get("key"));
+          const noteDecrypted = decrypted.toString(CryptoJS.enc.Utf8);
+          document.getElementById('noteDecrypted').value = noteDecrypted;
+          document.getElementById("decryptedField").style.display = "block";
+          document.getElementById("clickBelow").style.display = "none";
+          document.getElementById("statusMessage").style.display = "none";
+          document.getElementById("buttonRead").style.display = "none";
+        })
+        .catch(function (error) {
+          console.log(error);
+          document.getElementById("statusMessage").innerHTML = error;
+        });
+    }
+  };
+
+    function handleErrors(response) {
+      if (!response.ok) {
+        //document.getElementById("statusMessage").innerHTML = response.statusText;
+        throw Error(response.status);
+      }
+      return response;
+    };
+  </script>
+</body>
+
+</html>
