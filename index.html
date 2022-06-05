@@ -210,7 +210,6 @@
     function handleErrors(response) {
       if (!response.ok) {
         //document.getElementById("statusMessage").innerHTML = response.statusText;
-        console.log(response)
         throw Error(response.status);
       }
       return response;
