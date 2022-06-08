@@ -170,7 +170,7 @@
             document.getElementById("statusMessage").style.display = "none";
             document.getElementById("viewForm").style.display = "none";
             document.getElementById("viewLink").style.display = "block";
-            document.getElementById('link').value = location.href + '?note=' + jsonResponse.id + '&key=' + key;
+            document.getElementById('link').value = location.origin + '?note=' + jsonResponse.id + '&key=' + key;
           })
           .catch(function (error) {
             console.log(error);
