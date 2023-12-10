@@ -1,0 +1,9 @@
+{
+    "short_name": "Gone Note",
+    "name": "Gone Note",
+    "description": "Send encrypted self-destructing notes securely.",
+    "start_url": "/",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "theme_color": "#ffffff"
+}
